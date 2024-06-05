@@ -4,7 +4,7 @@ from random_user_agent.user_agent import UserAgent
 import requests
 from fp.fp import FreeProxy
 
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 
 import json
@@ -91,7 +91,7 @@ def discord_webhook(title, url, thumbnail, colour):
                 "url": "https://www.offspring.co.uk/" + url,
                 "thumbnail": {"url": thumbnail},
                 "footer": {"text": "Sneak Cred"},
-                "timestamp": str(datetime.utcnow()),
+                "timestamp": str(datetime.now(timezone.UTC)),
                 "color": int(COLOUR),
                 "fields": [{"name": "Colour", "value": colour}],
             }

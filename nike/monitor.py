@@ -5,7 +5,7 @@ import requests as rq
 import urllib3
 from fp.fp import FreeProxy
 
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 
 import json
@@ -62,7 +62,7 @@ def discord_webhook(title, colour, url, thumbnail, price, style_code):
                 "thumbnail": {"url": thumbnail},
                 "color": int(COLOUR),
                 "footer": {"text": "Sneak Cred"},
-                "timestamp": str(datetime.utcnow()),
+                "timestamp": str(datetime.now(timezone.UTC)),
                 "fields": [
                     {"name": "Colour", "value": colour},
                     {"name": "Price", "value": price},
