@@ -74,7 +74,7 @@ def discord_webhook(product):
             "url": product[1],
             "thumbnail": {"url": product[4]},
             "color": int(COLOUR),
-            "footer": {"text": "Developed by GitHub:yasserqureshi1"},
+            "footer": {"text": "Sneak Cred"},
             "timestamp": str(datetime.utcnow()),
             "fields": [
                 {"name": "Brand", "value": product[2]},

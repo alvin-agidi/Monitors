@@ -1,3 +1,6 @@
+from globalConfig import SNEAK_CRED_GREEN
+
+
 # --------------------- WEBHOOK URL ---------------------
 WEBHOOK = ""
 
@@ -22,5 +25,5 @@ KEYWORDS = []
 
 # --------------------- DISCORD BOT FEATURES ---------------------
 USERNAME = "Zalando"
-AVATAR_URL =  "https://raw.githubusercontent.com/yasserqureshi1/Sneaker-Monitors/master/monitors/zalando/logo.jpg"
-COLOUR = 16777215
+AVATAR_URL = "https://raw.githubusercontent.com/yasserqureshi1/Sneaker-Monitors/master/monitors/zalando/logo.jpg"
+COLOUR = SNEAK_CRED_GREEN

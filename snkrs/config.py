@@ -1,3 +1,5 @@
+from globalConfig import SNEAK_CRED_GREEN
+
 # --------------------- WEBHOOK URL ---------------------
 WEBHOOK = "https://discord.com/api/webhooks/1158428173046923304/a6xgeM4wUuv_Im0cBbbn4eZU2uIhxtYgD1yRDn7oMSbSAb7SIVkKkKzGDdmxaSRb8O4s"
 
@@ -27,4 +29,4 @@ KEYWORDS = []
 # --------------------- DISCORD BOT FEATURES ---------------------
 USERNAME = "SNKRS Monitor"
 AVATAR_URL = "https://raw.githubusercontent.com/yasserqureshi1/Sneaker-Monitors/master/monitors/snkrs/logo.jpg"
-COLOUR = 16777215
+COLOUR = SNEAK_CRED_GREEN

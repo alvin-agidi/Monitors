@@ -1,3 +1,5 @@
+from globalConfig import SNEAK_CRED_GREEN
+
 # --------------------- WEBHOOK URL ---------------------
 WEBHOOK = ""
 
@@ -27,4 +29,4 @@ KEYWORDS = []
 # --------------------- DISCORD BOT FEATURES ---------------------
 USERNAME = "Shopify"
 AVATAR_URL = "https://raw.githubusercontent.com/yasserqureshi1/Sneaker-Monitors/master/monitors/shopify/logo.png"
-COLOUR = 16777215
+COLOUR = SNEAK_CRED_GREEN

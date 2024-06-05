@@ -1,6 +1,8 @@
 # --------------------- WEBHOOK URL ---------------------
 WEBHOOK = "https://discord.com/api/webhooks/1158440034240827553/FRYDSuir_yoS25hsTYuz56WMkG0Bp4hwCZO9BWEVrAc0Zpgu7U4rsJWLzfK5T6WvtTQm"
 
+from globalConfig import SNEAK_CRED_GREEN
+
 # --------------------- FREE PROXY ---------------------
 # A single or multiple locations can be added in the array (e.g. ["GB"] or ["GB", "US"])
 ENABLE_FREE_PROXY = True
@@ -23,4 +25,4 @@ KEYWORDS = []
 # --------------------- DISCORD BOT FEATURES ---------------------
 USERNAME = "Supreme"
 AVATAR_URL = "https://raw.githubusercontent.com/yasserqureshi1/Sneaker-Monitors/master/monitors/supreme/logo.jpg"
-COLOUR = 16777215
+COLOUR = SNEAK_CRED_GREEN

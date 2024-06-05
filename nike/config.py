@@ -1,3 +1,5 @@
+from globalConfig import SNEAK_CRED_GREEN
+
 # --------------------- WEBHOOK URL ---------------------
 WEBHOOK = "https://discord.com/api/webhooks/1158448806086594592/lpHgZ4fWyF1EyWFJkxH-fzasGnUOUIIEM9_ygqmifXbXxqoNhcpQ7jsXwjJOOIaclNnY"
 
@@ -27,4 +29,4 @@ KEYWORDS = []
 # --------------------- DISCORD BOT FEATURES ---------------------
 USERNAME = "Nike"
 AVATAR_URL = "https://raw.githubusercontent.com/yasserqureshi1/Sneaker-Monitors/master/monitors/nike/logo.jpeg"
-COLOUR = 16777215
+COLOUR = SNEAK_CRED_GREEN

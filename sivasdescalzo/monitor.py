@@ -65,7 +65,7 @@ def discord_webhook(title, url, thumbnail, price):
             "title": title,
             "url": url,
             "thumbnail": {"url": thumbnail},
-            "footer": {"text": "Developed by GitHub:yasserqureshi1"},
+            "footer": {"text": "Sneak Cred"},
             "color": int(COLOUR),
             "timestamp": str(datetime.utcnow()),
             "fields": [

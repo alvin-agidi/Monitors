@@ -1,3 +1,5 @@
+from globalConfig import SNEAK_CRED_GREEN
+
 # --------------------- WEBHOOK URL ---------------------
 WEBHOOK = ""
 
@@ -23,4 +25,4 @@ KEYWORDS = []
 # --------------------- DISCORD BOT FEATURES ---------------------
 USERNAME = "Offspring"
 AVATAR_URL = "https://raw.githubusercontent.com/yasserqureshi1/Sneaker-Monitors/master/monitors/offspring/logo.jpg"
-COLOUR = 16777215
+COLOUR = SNEAK_CRED_GREEN

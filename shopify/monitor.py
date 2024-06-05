@@ -95,7 +95,7 @@ def discord_webhook(title, url, thumbnail, sizes):
             "thumbnail": {"url": thumbnail},
             "fields": fields,
             "color": int(COLOUR),
-            "footer": {"text": "Developed by GitHub:yasserqureshi1"},
+            "footer": {"text": "Sneak Cred"},
             "timestamp": str(datetime.utcnow()),
         }]
     }
