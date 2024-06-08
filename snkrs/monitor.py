@@ -35,6 +35,9 @@ from globalConfig import (
     SNEAK_CRED_GREEN as COLOUR,
 )
 
+KEYWORDS = [keyword.lower() for keyword in KEYWORDS]
+CURRENCY_SYMBOL = CURRENCY_SYMBOLS[LOCATION] if LOCATION in CURRENCY_SYMBOLS else ""
+
 logging.basicConfig(
     filename="snkrs-monitor.log",
     filemode="a",
@@ -51,9 +54,6 @@ user_agent_rotator = UserAgent(
 if ENABLE_FREE_PROXY:
     proxy_obj = FreeProxy(country_id=FREE_PROXY_LOCATION, rand=True)
 
-KEYWORDS = [keyword.lower() for keyword in KEYWORDS]
-CURRENCY_SYMBOL = CURRENCY_SYMBOLS[LOCATION] if LOCATION in CURRENCY_SYMBOLS else ""
-
 INSTOCK = []
 
 
@@ -61,7 +61,6 @@ async def send_to_discord(webhook, product):
     """
     Sends a Discord webhook notification to the specified webhook URL
     """
-
     embed = Embed.from_dict(
         {
             "title": product["title"],
@@ -117,12 +116,11 @@ async def monitor():
     """
     Initiates the monitor
     """
-    print(
-        """\n---------------------------------
+    msg = """\n---------------------------------
 --- SNKRS MONITOR HAS STARTED ---
 ---------------------------------\n"""
-    )
-    logging.info(msg="Successfully started monitor")
+    print(msg)
+    logging.info(msg=msg)
 
     # Ensures that first scrape does not notify all products
     start = False
