@@ -1,6 +1,6 @@
-from random_user_agent.params import SoftwareName, HardwareType
-from random_user_agent.user_agent import UserAgent
 from fp.fp import FreeProxy
+from random_user_agent.params import HardwareType, SoftwareName
+from random_user_agent.user_agent import UserAgent
 
 SNEAK_CRED_GREEN = 0x26B062
 
