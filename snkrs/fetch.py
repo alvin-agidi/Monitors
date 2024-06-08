@@ -1,14 +1,14 @@
 # For regions that do not use the standard API
-from bs4 import BeautifulSoup
-import requests
+import asyncio
 import json
 import traceback
-
-import asyncio
-from pyppeteer import launch
 from datetime import datetime
-from pyppeteer_stealth import stealth
+
+import requests
+from bs4 import BeautifulSoup
 from natsort import natsorted
+from pyppeteer import launch
+from pyppeteer_stealth import stealth
 
 
 async def get_content(url, user_agent, proxy):

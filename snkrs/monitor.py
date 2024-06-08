@@ -1,35 +1,19 @@
-import aiohttp
-from random_user_agent.params import SoftwareName, HardwareType
-from random_user_agent.user_agent import UserAgent
+import asyncio
+import logging
+import time
+import traceback
+from datetime import datetime, timezone
 
+import aiohttp
 import requests as rq
 import urllib3
-from fp.fp import FreeProxy
-
-from datetime import datetime, timezone
-import time
-
-import logging
-import traceback
-from discord import Webhook, Embed
-import asyncio
+from config import AVATAR_URL, DELAY, KEYWORDS, USERNAME, WEBHOOK_URL
+from discord import Embed, Webhook
 
 import snkrs.fetch as fetch
-
-from config import (
-    WEBHOOK_URL,
-    DELAY,
-    KEYWORDS,
-    USERNAME,
-    AVATAR_URL,
-)
-
+from globalConfig import CURRENCY_SYMBOLS, ENABLE_FREE_PROXY, LANGUAGE, LOCATION
+from globalConfig import SNEAK_CRED_GREEN as COLOUR
 from globalConfig import (
-    ENABLE_FREE_PROXY,
-    LOCATION,
-    LANGUAGE,
-    CURRENCY_SYMBOLS,
-    SNEAK_CRED_GREEN as COLOUR,
     STANDARD_LOCATIONS,
     create_headers,
     create_proxy,
