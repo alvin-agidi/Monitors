@@ -8,6 +8,7 @@ import asyncio
 from pyppeteer import launch
 from datetime import datetime
 from pyppeteer_stealth import stealth
+from natsort import natsorted
 
 
 async def get_content(url, user_agent, proxy):
@@ -88,7 +89,7 @@ def standard_api(PRODUCTS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, star
                                 sizes = "".join(
                                     [
                                         size + ": " + level + "\n"
-                                        for size, level in sorted(sizes_dict.items())
+                                        for size, level in natsorted(sizes_dict.items())
                                     ]
                                 )[:-1]
                             elif not k["available"] and stored in PRODUCTS:
