@@ -72,7 +72,7 @@ def fetch_new_products(
                     if product["availability"]["available"] and (
                         product["merchProduct"]["status"] == "ACTIVE"
                     ):
-                        sizes_dict = {}
+                        size_dict = {}
                         sizes = ""
                         for k in product["availableGtins"]:
                             stored = [
@@ -86,12 +86,12 @@ def fetch_new_products(
 
                                 for s in product["skus"]:
                                     if s["gtin"] == k["gtin"]:
-                                        sizes_dict[s["nikeSize"]] = k["level"]
+                                        size_dict[s["nikeSize"]] = k["level"]
 
                                 sizes = "".join(
                                     [
                                         size + ": " + level + "\n"
-                                        for size, level in natsorted(sizes_dict.items())
+                                        for size, level in natsorted(size_dict.items())
                                     ]
                                 )[:-1]
                             elif not k["available"] and stored in PRODUCTS:

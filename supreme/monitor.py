@@ -1,199 +1,173 @@
-from random_user_agent.params import SoftwareName, HardwareType
-from random_user_agent.user_agent import UserAgent
+import aiohttp
 
 from bs4 import BeautifulSoup
 import requests
 import urllib3
-from fp.fp import FreeProxy
 
 from datetime import datetime, timezone
 import time
 
+from discord import Webhook, Embed
 import json
 import logging
 import traceback
+import asyncio
 
 from config import (
-    WEBHOOK,
-    ENABLE_FREE_PROXY,
-    FREE_PROXY_LOCATION,
-    DELAY,
-    PROXY,
-    KEYWORDS,
-    USERNAME,
-    AVATAR_URL,
-    COLOUR,
+	WEBHOOK_URL,
+	DELAY,
+	KEYWORDS,
+	USERNAME,
+	AVATAR_URL,
 )
+
+from globalConfig import (
+	LOCATION,
+	ENABLE_FREE_PROXY,
+	CURRENCY_SYMBOLS,
+	SNEAK_CRED_GREEN as COLOUR,
+	create_headers,
+	create_proxy,
+	create_proxy_obj,
+	create_user_agent_rotator,
+	rotate_headers,
+	rotate_proxy,
+)
+
+KEYWORDS = [keyword.lower() for keyword in KEYWORDS]
+CURRENCY_SYMBOL = CURRENCY_SYMBOLS[LOCATION] if LOCATION in CURRENCY_SYMBOLS else ""
 
 logging.basicConfig(
-    filename="supreme-monitor.log",
-    filemode="a",
-    format="%(asctime)s - %(name)s - %(message)s",
-    level=logging.DEBUG,
+	filename="supreme-monitor.log",
+	filemode="a",
+	format="%(asctime)s - %(name)s - %(message)s",
+	level=logging.DEBUG,
 )
-
-software_names = [SoftwareName.CHROME.value]
-hardware_type = [HardwareType.MOBILE__PHONE]
-user_agent_rotator = UserAgent(
-    software_names=software_names, hardware_type=hardware_type
-)
-
-if ENABLE_FREE_PROXY:
-    proxy_obj = FreeProxy(country_id=FREE_PROXY_LOCATION, rand=True)
 
 INSTOCK = []
 
 
-def discord_webhook(title, price, variant, sku, thumbnail, url):
-    """
-    Sends a Discord webhook notification to the specified webhook URL
-    """
-    data = {
-        "username": USERNAME,
-        "avatar_url": AVATAR_URL,
-        "embeds": [
-            {
-                "title": title,
-                "thumbnail": {"url": thumbnail},
-                "url": url,
-                "color": int(COLOUR),
-                "footer": {"text": "Sneak Cred"},
-                "timestamp": str(datetime.now(timezone.UTC)),
-                "fields": [
-                    {"name": "SKU", "value": sku},
-                    {"name": "Variant", "value": variant},
-                    {"name": "Price", "value": price},
-                ],
-            }
-        ],
-    }
+async def send_to_discord(product, webhook):
+	"""
+	Sends a Discord webhook notification to the specified webhook URL
+	"""
+	embed = Embed.from_dict(
+		{
+			"title": product["title"],
+			"thumbnail": {"url": product["thumbnail"]},
+			"url": product["url"],
+			"color": COLOUR,
+			"footer": {"text": "Sneak Cred"},
+			"timestamp": str(datetime.now(timezone.utc)),
+			"fields": [
+				{"name": "Colour", "value": product["color"]},
+				{"name": "Price", "value": CURRENCY_SYMBOL + product["price"]},
+				{"name": "Sizes", "value": product["sizes"]},
+			],
+		}
+	)
 
-    result = requests.post(
-        WEBHOOK, data=json.dumps(data), headers={"Content-Type": "application/json"}
-    )
-
-    try:
-        result.raise_for_status()
-    except requests.exceptions.HTTPError as err:
-        print(err)
-        logging.error(msg=err)
-    else:
-        print("Payload delivered successfully, code {}.".format(result.status_code))
-        logging.info(
-            msg="Payload delivered successfully, code {}.".format(result.status_code)
-        )
+	try:
+		await webhook.send(embed=embed, username=USERNAME, avatar_url=AVATAR_URL)
+	except Exception as e:
+		print(e)
+	else:
+		msg = product["title"] + " successfully sent."
+		print(msg)
+		logging.info(msg=msg)
 
 
-def scrape_main_site(headers, proxy):
-    url = "https://uk.supreme.com/collections/all"
+def fetch_new_products(products, start):
+	new_products = []
+	for item in products:
+		if not KEYWORDS or any(
+			key.lower() in item["title"].lower() for key in KEYWORDS
+		):
+			sizes = [
+				variant["title"] + "\n"
+				for variant in item["variants"]
+				if variant["available"]
+			]
 
-    html = requests.get(url, headers=headers, proxies=proxy)
-    soup = BeautifulSoup(html.text, "html.parser")
+			item_id = item["id"]
 
-    products = soup.find("script", {"class": "js-first-all-products-json"})
-    output = json.loads(products.text)["products"]
-
-    return output
-
-
-def comparitor(item, start):
-    for variant in item["variants"]:
-        variant_id = variant["id"]
-        if variant["available"] == True:
-            # Checks if it already exists in our instock
-            if variant_id not in INSTOCK:
-                # Add to instock array
-                INSTOCK.append(variant_id)
-
-                # Send a notification to the discord webhook with the in-stock product
-                if start == 0:
-                    print(variant["name"])
-                    discord_webhook(
-                        title=variant["name"],
-                        price=str(variant["price"] / 100),
-                        variant=variant["title"],
-                        sku=variant["sku"],
-                        thumbnail="https:" + item["image"],
-                        url="https://uk.supremenewyork.com" + item["url"],
-                    )
-                    logging.info(msg="Successfully sent Discord notification")
-
-        else:
-            if variant_id in INSTOCK:
-                INSTOCK.remove(variant_id)
+			if sizes and item_id not in INSTOCK:
+				INSTOCK.append(item_id)
+				if not start:
+					new_products.append(
+						dict(
+							title=item["title"],
+							price=format(item["price"] / 100, ".2f"),
+							thumbnail="https:" + item["image"],
+							sizes="".join(sizes),
+							color=item["tags"][0].split(":")[-1],
+							url="https://uk.supreme.com" + item["url"],
+						)
+					)
+			elif not sizes and item_id in INSTOCK:
+				INSTOCK.remove(item_id)
 
 
-def monitor():
-    """
-    Initiates the monitor
-    """
-    print(
-        """\n-----------------------------------
---- SUPREME MONITOR HAS STARTED ---
------------------------------------\n"""
-    )
-    logging.info(msg="Successfully started monitor")
 
-    # Ensures that first scrape does not notify all products
-    start = 1
+	return new_products
 
-    # Initialising proxy and headers
-    if ENABLE_FREE_PROXY:
-        proxy = {"http": proxy_obj.get()}
-    elif PROXY != []:
-        proxy_no = 0
-        proxy = (
-            {} if PROXY == [] else {"http": PROXY[proxy_no], "https": PROXY[proxy_no]}
-        )
-    else:
-        proxy = {}
 
-    headers = {
-        "user-agent": user_agent_rotator.get_random_user_agent(),
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0",
-    }
+def scrape_site(headers, proxy):
+	url = "https://uk.supreme.com/collections/all"
 
-    while True:
-        try:
-            # Makes request to site and stores products
-            stock = scrape_main_site(proxy, headers)
-            for item in stock:
-                if KEYWORDS == []:
-                    # If no keywords set, checks whether item status has changed
-                    comparitor(item, start)
+	html = requests.get(url, headers=headers, proxies=proxy)
+	soup = BeautifulSoup(html.text, "html.parser")
 
-                else:
-                    # For each keyword, checks whether particular item status has changed
-                    for key in KEYWORDS:
-                        if key.lower() in item["title"].lower():
-                            comparitor(item, start)
+	content = soup.find("script", {"class": "js-first-all-products-json"})
+	products = json.loads(content.text)["products"]
 
-            # Allows changes to be notified
-            start = 0
+	return products
 
-        except requests.exceptions.RequestException as e:
-            logging.error(e)
-            logging.info("Rotating headers and proxy")
 
-            # Rotates headers
-            headers["User-Agent"] = user_agent_rotator.get_random_user_agent()
+async def monitor():
+	"""
+	Initiates the monitor
+	"""
+	msg = "\n-----------------------------------\n--- SUPREME MONITOR HAS STARTED ---\n-----------------------------------\n"
+	print(msg)
+	logging.info(msg=msg)
 
-            if ENABLE_FREE_PROXY:
-                proxy = {"http": proxy_obj.get()}
+	# Ensures that first scrape does not notify all products
+	start = False
 
-            elif PROXY != []:
-                proxy_no = 0 if proxy_no == (len(PROXY) - 1) else proxy_no + 1
-                proxy = {"http": PROXY[proxy_no], "https": PROXY[proxy_no]}
+	user_agent_rotator = create_user_agent_rotator()
+	headers = create_headers(user_agent_rotator)
+	proxy_obj = create_proxy_obj() if ENABLE_FREE_PROXY else None
+	proxy = create_proxy(proxy_obj)
 
-        except Exception as e:
-            print(f"Exception found: {traceback.format_exc()}")
-            logging.error(e)
+	async with aiohttp.ClientSession() as session:
+		webhook = Webhook.from_url(WEBHOOK_URL, session=session)
+		while True:
+			try:
+				# Makes request to site and stores products
+				products = scrape_site(proxy, headers)
+				new_products = fetch_new_products(products, start)
 
-        time.sleep(float(DELAY))
+				for product in new_products:
+					await send_to_discord(product, webhook)
+
+			except requests.exceptions.RequestException as e:
+				logging.error(e)
+				logging.info("Rotating headers and proxy")
+
+				rotate_headers(headers, user_agent_rotator)
+				rotate_proxy(proxy_obj)
+			except Exception as e:
+				print(f"Exception found: {traceback.format_exc()}")
+				logging.error(e)
+
+			# Allows changes to be notified
+			start = False
+
+			# User set delay
+			time.sleep(float(DELAY))
 
 
 if __name__ == "__main__":
-    urllib3.disable_warnings()
-    monitor()
+	urllib3.disable_warnings()
+	asyncio.run(monitor())

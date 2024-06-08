@@ -25,14 +25,18 @@ from config import (
 )
 
 from globalConfig import (
+    ENABLE_FREE_PROXY,
     LOCATION,
     LANGUAGE,
-    ENABLE_FREE_PROXY,
-    FREE_PROXY_LOCATION,
-    STANDARD_LOCATIONS,
     CURRENCY_SYMBOLS,
-    PROXY,
     SNEAK_CRED_GREEN as COLOUR,
+    STANDARD_LOCATIONS,
+    create_headers,
+    create_proxy,
+    create_proxy_obj,
+    create_user_agent_rotator,
+    rotate_headers,
+    rotate_proxy,
 )
 
 KEYWORDS = [keyword.lower() for keyword in KEYWORDS]
@@ -45,19 +49,11 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
-software_names = [SoftwareName.CHROME.value]
-hardware_type = [HardwareType.MOBILE__PHONE]
-user_agent_rotator = UserAgent(
-    software_names=software_names, hardware_type=hardware_type
-)
-
-if ENABLE_FREE_PROXY:
-    proxy_obj = FreeProxy(country_id=FREE_PROXY_LOCATION, rand=True)
 
 INSTOCK = []
 
 
-async def send_to_discord(webhook, product):
+async def send_to_discord(product, webhook):
     """
     Sends a Discord webhook notification to the specified webhook URL
     """
@@ -123,17 +119,10 @@ async def monitor():
     # Ensures that first scrape does not notify all products
     start = False
 
-    # Initialising proxy and headers
-    if ENABLE_FREE_PROXY:
-        proxy = {"http": proxy_obj.get()}
-    elif PROXY != []:
-        proxy_no = 0
-        proxy = (
-            {} if PROXY == [] else {"http": PROXY[proxy_no], "https": PROXY[proxy_no]}
-        )
-    else:
-        proxy = {}
-    user_agent = user_agent_rotator.get_random_user_agent()
+    user_agent_rotator = create_user_agent_rotator()
+    headers = create_headers(user_agent_rotator)
+    proxy_obj = create_proxy_obj() if ENABLE_FREE_PROXY else None
+    proxy = create_proxy(proxy_obj)
 
     if LOCATION in STANDARD_LOCATIONS:
         fetch_new_products = fetch.fetch_new_products
@@ -152,25 +141,23 @@ async def monitor():
         while True:
             try:
                 new_products = fetch_new_products(
-                    INSTOCK, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start
+                    INSTOCK,
+                    LOCATION,
+                    LANGUAGE,
+                    user_agent_rotator,
+                    proxy,
+                    KEYWORDS,
+                    start,
                 )
                 for product in new_products:
-                    await send_to_discord(webhook, product)
+                    await send_to_discord(product, webhook)
 
             except rq.exceptions.RequestException as e:
                 logging.error(e)
                 logging.info("Rotating headers and proxy")
 
-                # Rotates headers
-                user_agent = user_agent_rotator.get_random_user_agent()
-
-                if ENABLE_FREE_PROXY:
-                    proxy = {"http": proxy_obj.get()}
-
-                elif PROXY != []:
-                    proxy_no = 0 if proxy_no == (len(PROXY) - 1) else proxy_no + 1
-                    proxy = {"http": PROXY[proxy_no], "https": PROXY[proxy_no]}
-
+                rotate_headers(headers, user_agent_rotator)
+                rotate_proxy(proxy_obj)
             except Exception as e:
                 print(f"Exception found: {traceback.format_exc()}")
                 logging.error(e)
