@@ -61,6 +61,7 @@ async def send_to_discord(webhook, product):
     """
     Sends a Discord webhook notification to the specified webhook URL
     """
+
     embed = Embed.from_dict(
         {
             "title": product["title"],
@@ -85,22 +86,10 @@ async def send_to_discord(webhook, product):
                 {
                     "name": "Release Date",
                     "value": "<t:"
-                    + str(
-                        int(
-                            datetime.strptime(
-                                product["release_date"], "%Y-%m-%dT%H:%M:%S.%fZ"
-                            ).timestamp()
-                        )
-                    )
+                    + product["release_date"]
                     + ":F>\n"
                     + "(<t:"
-                    + str(
-                        int(
-                            datetime.strptime(
-                                product["release_date"], "%Y-%m-%dT%H:%M:%S.%fZ"
-                            ).timestamp()
-                        )
-                    )
+                    + product["release_date"]
                     + ":R>)",  # ,
                     "inline": True,
                 },
