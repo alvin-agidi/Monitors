@@ -14,7 +14,7 @@ import traceback
 from discord import Webhook, Embed
 import asyncio
 
-import locations
+import snkrs.fetch as fetch
 
 from config import (
     WEBHOOK_URL,
@@ -116,9 +116,7 @@ async def monitor():
     """
     Initiates the monitor
     """
-    msg = """\n---------------------------------
---- SNKRS MONITOR HAS STARTED ---
----------------------------------\n"""
+    msg = "\n---------------------------------\n--- SNKRS MONITOR HAS STARTED ---\n---------------------------------\n"
     print(msg)
     logging.info(msg=msg)
 
@@ -137,28 +135,25 @@ async def monitor():
         proxy = {}
     user_agent = user_agent_rotator.get_random_user_agent()
 
+    if LOCATION in STANDARD_LOCATIONS:
+        fetch_new_products = fetch.fetch_new_products
+    elif LOCATION == "CL":
+        fetch_new_products = fetch.fetch_new_products_chile
+    elif LOCATION == "BR":
+        fetch_new_products = fetch.fetch_new_products_brazil
+    else:
+        print(
+            f'LOCATION "{LOCATION}" CURRENTLY NOT AVAILABLE. IF YOU BELIEVE THIS IS A MISTAKE PLEASE CREATE AN ISSUE ON GITHUB OR MESSAGE THE #issues CHANNEL IN DISCORD.'
+        )
+        return
+
     async with aiohttp.ClientSession() as session:
         webhook = Webhook.from_url(WEBHOOK_URL, session=session)
         while True:
             try:
-                if LOCATION in STANDARD_LOCATIONS:
-                    new_products = locations.standard_api(
-                        INSTOCK, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start
-                    )
-                elif LOCATION == "CL":
-                    new_products = locations.chile(
-                        INSTOCK, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start
-                    )
-                elif LOCATION == "BR":
-                    new_products = locations.brazil(
-                        INSTOCK, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start
-                    )
-                else:
-                    print(
-                        f'LOCATION "{LOCATION}" CURRENTLY NOT AVAILABLE. IF YOU BELIEVE THIS IS A MISTAKE PLEASE CREATE AN ISSUE ON GITHUB OR MESSAGE THE #issues CHANNEL IN DISCORD.'
-                    )
-                    return
-
+                new_products = fetch_new_products(
+                    INSTOCK, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start
+                )
                 for product in new_products:
                     await send_to_discord(webhook, product)
 

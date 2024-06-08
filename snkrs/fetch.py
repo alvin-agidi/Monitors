@@ -34,7 +34,9 @@ async def get_content(url, user_agent, proxy):
     return content
 
 
-def standard_api(PRODUCTS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start):
+def fetch_new_products(
+    PRODUCTS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start
+):
     headers = {
         "accept": "*/*",
         "accept-encoding": "gzip, deflate, br",
