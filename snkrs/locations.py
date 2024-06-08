@@ -8,52 +8,6 @@ import asyncio
 from pyppeteer import launch
 from pyppeteer_stealth import stealth
 
-___standard_api___ = [
-	"GB",
-	"US",
-	"AU",
-	"AT",
-	"BE",
-	"BG",
-	"CA",
-	"CN",
-	"HR",
-	"CZ",
-	"DK",
-	"EG",
-	"FI",
-	"FR",
-	"DE",
-	"HU",
-	"IN",
-	"ID",
-	"IE",
-	"IT",
-	"MY",
-	"MX",
-	"MA",
-	"NL",
-	"NZ",
-	"NO",
-	"PH",
-	"PL",
-	"PT",
-	"PR",
-	"RO",
-	"RU",
-	"SA",
-	"SG",
-	"SI",
-	"ZA",
-	"ES",
-	"SE",
-	"CH",
-	"TR",
-	"AE",
-	"VN",
-	"JP",
-]
-
 
 async def get_content(url, user_agent, proxy):
 	browser = await launch()
@@ -78,7 +32,7 @@ async def get_content(url, user_agent, proxy):
 	return content
 
 
-def standard_api(ITEMS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start):
+def standard_api(PRODUCTS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start):
 	headers = {
 		"accept": "*/*",
 		"accept-encoding": "gzip, deflate, br",
@@ -97,7 +51,7 @@ def standard_api(ITEMS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start):
 		"Pragma": "no-cache",
 		"Expires": "0",
 	}
-	to_discord = []
+	new_products = []
 
 	anchor = 0
 	while anchor < 160:
@@ -111,149 +65,79 @@ def standard_api(ITEMS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start):
 		for item in output["objects"]:
 			try:
 				for product in item["productInfo"]:
-					if (product["availability"]["available"] == True) and (
+					if product["availability"]["available"] and (
 						product["merchProduct"]["status"] == "ACTIVE"
 					):
-						if KEYWORDS == []:
-							first = 0
-							sizes = ""
-							for k in product["availableGtins"]:
-								stored = [
-									product["productContent"]["fullTitle"],
-									product["productContent"]["colorDescription"],
-									k["gtin"],
-								]
-								if k["available"] == True:
-									if stored not in ITEMS:
-										ITEMS.append(stored)
+						sizes_dict = {}
+						sizes = ""
+						for k in product["availableGtins"]:
+							stored = [
+								product["productContent"]["fullTitle"],
+								product["productContent"]["colorDescription"],
+								k["gtin"],
+							]
+							
+							if k["available"] and stored not in PRODUCTS:
+								PRODUCTS.append(stored)
 
-										for s in product["skus"]:
-											if first == 0:
-												if s["gtin"] == k["gtin"]:
-													sizes = (
-														str(s["nikeSize"])
-														+ ": "
-														+ str(k["level"])
-													)
-													first = 1
-													break
-											else:
-												if s["gtin"] == k["gtin"]:
-													sizes += (
-														"\n"
-														+ str(s["nikeSize"])
-														+ ": "
-														+ str(k["level"])
-													)
-													break
-								else:
-									if stored in ITEMS:
-										ITEMS.remove(stored)
+								for s in product["skus"]:
+									if s["gtin"] == k["gtin"]:
+										sizes_dict[s["nikeSize"]] = k["level"]
 
-							if sizes != "" and not start:
-								print("Sending notification to Discord...")
-								to_discord.append(
-									dict(
-										title=product["productContent"]["fullTitle"],
-										description=product["productContent"][
-											"colorDescription"
-										],
-										url="https://www.nike.com/"
-										+ LOCATION
-										+ "/launch/t/"
-										+ product["productContent"]["slug"],
-										thumbnail=item["publishedContent"]["nodes"][0][
-											"nodes"
-										][0]["properties"]["squarishURL"],
-										price=str(
-											product["merchPrice"]["currentPrice"]
-										),
-										style_code=str(
-											product["merchProduct"]["styleColor"]
-										),
-										sizes=sizes,
-									)
-								)
+								sizes = "".join(
+									[
+										size + ": " + level + "\n"
+										for size, level in sorted(
+											sizes_dict.items()
+										)
+									]
+								)[:-1]
+							elif not k["available"] and stored in PRODUCTS:
+								PRODUCTS.remove(stored)
 
-						else:
-							for key in KEYWORDS:
-								if (
-									key.lower()
-									in product["merchProduct"]["labelName"].lower()
-									or key.lower()
+						if (
+							sizes != ""
+							and not start
+							and (
+								not KEYWORDS
+								or any(
+									key in product["merchProduct"]["labelName"].lower()
+									or key
 									in product["productContent"][
 										"colorDescription"
 									].lower()
-								):
-									first = 0
-									sizes = ""
-									for k in product["availableGtins"]:
-										stored = [
-											product["productContent"]["fullTitle"],
-											product["productContent"][
-												"colorDescription"
-											],
-											k["gtin"],
-										]
-										if k["available"] == True:
-											if stored not in ITEMS:
-												ITEMS.append(stored)
-
-												for s in product["skus"]:
-													if first == 0:
-														if s["gtin"] == k["gtin"]:
-															sizes = (
-																str(s["nikeSize"])
-																+ ": "
-																+ str(k["level"])
-															)
-															first = 1
-															break
-													else:
-														if s["gtin"] == k["gtin"]:
-															sizes += (
-																"\n"
-																+ str(s["nikeSize"])
-																+ ": "
-																+ str(k["level"])
-															)
-															break
-										else:
-											if stored in ITEMS:
-												ITEMS.remove(stored)
-
-									if sizes != "" and not start:
-										print("Sending notification to Discord...")
-										to_discord.append(
-											dict(
-												title=product["productContent"][
-													"fullTitle"
-												],
-												description=product["productContent"][
-													"colorDescription"
-												],
-												url="https://www.nike.com/"
-												+ LOCATION
-												+ "/launch/t/"
-												+ product["productContent"]["slug"],
-												thumbnail=item["publishedContent"][
-													"nodes"
-												][0]["nodes"][0]["properties"][
-													"squarishURL"
-												],
-												price=str(
-													product["merchPrice"][
-														"currentPrice"
-													]
-												),
-												style_code=str(
-													product["merchProduct"][
-														"styleColor"
-													]
-												),
-												sizes=sizes,
-											)
-										)
+									for key in KEYWORDS
+								)
+							)
+						):
+							new_products.append(
+								dict(
+									title=product["productContent"]["fullTitle"],
+									description=product["productContent"][
+										"colorDescription"
+									],
+									url="https://www.nike.com/"
+									+ LOCATION
+									+ "/launch/t/"
+									+ product["productContent"]["slug"],
+									thumbnail=item["publishedContent"]["nodes"][0][
+										"nodes"
+									][0]["properties"]["squarishURL"],
+									price=str(product["merchPrice"]["currentPrice"]),
+									release_method=product["launchView"]["method"],
+									release_date=product["launchView"][
+										"startEntryDate"
+									],
+									style_code=product["merchProduct"]["styleColor"],
+									region=product["merchProduct"]["merchGroup"],
+									exclusive_access=(
+										"Yes"
+										if product["merchProduct"]["exclusiveAccess"]
+										else "No"
+									),
+									sizes=sizes,
+								)
+							)
 			except KeyError:
 				pass
 			except:
@@ -261,13 +145,13 @@ def standard_api(ITEMS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start):
 
 		anchor += 50
 
-	return to_discord
+	return new_products
 
 
-def brazil(ITEMS, user_agent, proxy, KEYWORDS, start):
-    # need to bs4
-    url = "https://www.nike.com.br/Snkrs/Feed?p=2&demanda=true"
-    headers = {
+def brazil(PRODUCTS, user_agent, proxy, KEYWORDS, start):
+	# need to bs4
+	url = "https://www.nike.com.br/Snkrs/Feed?p=2&demanda=true"
+	headers = {
 		"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
 		"accept-encoding": "gzip, deflate, br",
 		"accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
@@ -281,13 +165,13 @@ def brazil(ITEMS, user_agent, proxy, KEYWORDS, start):
 		"Pragma": "no-cache",
 		"Expires": "0",
 	}
-    to_discord = []
-    html = requests.get(url=url, headers=headers, proxies=proxy)
-    soup = BeautifulSoup(html.text, "html.parser")
-    output = soup.find_all("div", {"class": "produto produto--esgotado"})
-    for product in output:
-        if KEYWORDS == []:
-            item = dict(
+	new_products = []
+	html = requests.get(url=url, headers=headers, proxies=proxy)
+	soup = BeautifulSoup(html.text, "html.parser")
+	output = soup.find_all("div", {"class": "produto produto--esgotado"})
+	for product in output:
+		if KEYWORDS == []:
+			item = dict(
 				title=product.find("h2", {"class": "produto__detalhe-titulo"}).text,
 				description=None,
 				url=product.find("div", {"class": "produto__imagem"})["href"],
@@ -297,19 +181,19 @@ def brazil(ITEMS, user_agent, proxy, KEYWORDS, start):
 				sizes=None,
 			)
 
-            if not start and item not in ITEMS:
-                to_discord.append(item)
-                start = True
+			if not start and item not in PRODUCTS:
+				new_products.append(item)
+				start = True
 
-        else:
-            for key in KEYWORDS:
-                if (
-                    key.lower()
-                    in product.find(
-                        "h2", {"class": "produto__detalhe-titulo"}
-                    ).text.lower()
-                ):
-                    item = dict(
+		else:
+			for key in KEYWORDS:
+				if (
+					key.lower()
+					in product.find(
+						"h2", {"class": "produto__detalhe-titulo"}
+					).text.lower()
+				):
+					item = dict(
 						title=product.find(
 							"h2", {"class": "produto__detalhe-titulo"}
 						).text,
@@ -323,16 +207,16 @@ def brazil(ITEMS, user_agent, proxy, KEYWORDS, start):
 						sizes=None,
 					)
 
-                    if not start and item not in ITEMS:
-                        to_discord.append(item)
-                        start = True
+					if not start and item not in PRODUCTS:
+						new_products.append(item)
+						start = True
 
-    return to_discord
+	return new_products
 
 
-def chile(ITEMS, user_agent, proxy, KEYWORDS, start):
+def chile(PRODUCTS, user_agent, proxy, KEYWORDS, start):
 	url = "https://www.nike.cl/api/catalog_system/pub/products/search?&_from=0&_to=49"
-	to_discord = []
+	new_products = []
 	html = asyncio.get_event_loop().run_until_complete(
 		get_content(url, user_agent, proxy)
 	)
@@ -356,8 +240,8 @@ def chile(ITEMS, user_agent, proxy, KEYWORDS, start):
 				size["name"],
 			]
 			if int(size["sellers"][0]["commertialOffer"]["AvailableQuantity"]) > 0:
-				if item not in ITEMS:
-					ITEMS.append(item)
+				if item not in PRODUCTS:
+					PRODUCTS.append(item)
 					if s == 0:
 						sizes = (
 							str(size["name"])
@@ -386,12 +270,12 @@ def chile(ITEMS, user_agent, proxy, KEYWORDS, start):
 						)
 
 			else:
-				if item in ITEMS:
-					ITEMS.remove(item)
+				if item in PRODUCTS:
+					PRODUCTS.remove(item)
 
 		if sizes != "" and not start:
 			if KEYWORDS == []:
-				to_discord.append(
+				new_products.append(
 					dict(
 						title=product["productName"],
 						description=str(product["items"][0]["color"][0]),
@@ -412,7 +296,7 @@ def chile(ITEMS, user_agent, proxy, KEYWORDS, start):
 			else:
 				for key in KEYWORDS:
 					if key.lower() in product["productName"].lower():
-						to_discord.append(
+						new_products.append(
 							dict(
 								title=product["productName"],
 								description=str(product["items"][0]["color"][0]),
@@ -430,4 +314,4 @@ def chile(ITEMS, user_agent, proxy, KEYWORDS, start):
 								sizes=sizes,
 							)
 						)
-	return to_discord
+	return new_products

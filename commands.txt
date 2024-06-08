@@ -1,0 +1,2 @@
+export PYTHONPATH="${PYTHONPATH}: /home/opc/monitors"
+python monitor.py
