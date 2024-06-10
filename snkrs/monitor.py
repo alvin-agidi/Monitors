@@ -11,9 +11,11 @@ from config import AVATAR_URL, DELAY, KEYWORDS, USERNAME, WEBHOOK_URL
 from discord import Embed, Webhook
 
 import snkrs.fetch as fetch
-from globalConfig import CURRENCY_SYMBOLS, ENABLE_FREE_PROXY, LANGUAGE, LOCATION
-from globalConfig import SNEAK_CRED_GREEN as COLOUR
 from globalConfig import (
+    CURRENCY_SYMBOLS,
+    ENABLE_FREE_PROXY,
+    LANGUAGE,
+    LOCATION,
     STANDARD_LOCATIONS,
     create_headers,
     create_proxy,
@@ -22,6 +24,7 @@ from globalConfig import (
     rotate_headers,
     rotate_proxy,
 )
+from globalConfig import SNEAK_CRED_GREEN as COLOUR
 
 KEYWORDS = [keyword.lower() for keyword in KEYWORDS]
 CURRENCY_SYMBOL = CURRENCY_SYMBOLS[LOCATION] if LOCATION in CURRENCY_SYMBOLS else ""

@@ -88,7 +88,7 @@ def create_proxy_obj():
 
 
 def create_proxy(proxy_obj):
-    if ENABLE_FREE_PROXY:
+    if proxy_obj:
         proxy = {"http": proxy_obj.get()}
     elif PROXY != []:
         proxy_no = 0
