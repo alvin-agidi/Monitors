@@ -43,13 +43,13 @@ async def send_to_discord(product, webhook):
     embed = Embed.from_dict(
         {
             "title": product["title"],
+            "description": product["color"],
             "thumbnail": {"url": product["thumbnail"]},
             "url": product["url"],
             "color": COLOUR,
             "footer": {"text": "Sneak Cred"},
             "timestamp": str(datetime.now(timezone.utc)),
             "fields": [
-                {"name": "Colour", "value": product["color"]},
                 {"name": "Price", "value": CURRENCY_SYMBOL + product["price"]},
                 {"name": "Sizes", "value": product["sizes"]},
             ],
