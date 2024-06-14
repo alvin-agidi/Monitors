@@ -1,128 +1,136 @@
-from random_user_agent.params import SoftwareName, HardwareType
-from random_user_agent.user_agent import UserAgent
-
-import requests
-from fp.fp import FreeProxy
-
-from datetime import datetime, timezone
-import time
-
 import json
 import logging
+import time
 import traceback
+from datetime import datetime, timezone
+from discord import Embed, Webhook
+import asyncio
 
-from locations import US, UK, AU
+import aiohttp
+import urllib3
 
-from config import WEBHOOK, LOCATION, ENABLE_FREE_PROXY, FREE_PROXY_LOCATION, DELAY, PROXY, KEYWORDS, USERNAME, AVATAR_URL, COLOUR
+import requests
+from config import (
+    AVATAR_URL,
+    DELAY,
+    KEYWORDS,
+    USERNAME,
+    WEBHOOK_URL,
+)
 
-logging.basicConfig(filename='footlocker-monitor.log', filemode='a', format='%(asctime)s - %(name)s - %(message)s', level=logging.DEBUG)
+from globalConfig import (
+    CURRENCY_SYMBOLS,
+    ENABLE_FREE_PROXY,
+    LOCATION,
+    create_headers,
+    create_proxy,
+    create_proxy_obj,
+    create_user_agent_rotator,
+    rotate_headers,
+    rotate_proxy,
+)
+from globalConfig import SNEAK_CRED_GREEN as COLOUR
 
-software_names = [SoftwareName.CHROME.value]
-hardware_type = [HardwareType.MOBILE__PHONE]
-user_agent_rotator = UserAgent(software_names=software_names, hardware_type=hardware_type)
 
-if ENABLE_FREE_PROXY:  
-    proxy_obj = FreeProxy(country_id=FREE_PROXY_LOCATION, rand=True)
+from locations import (
+    fetch_new_products_AU,
+    fetch_new_products_GB,
+    fetch_new_products_US,
+)
+
+KEYWORDS = [keyword.lower() for keyword in KEYWORDS]
+CURRENCY_SYMBOL = CURRENCY_SYMBOLS[LOCATION] if LOCATION in CURRENCY_SYMBOLS else ""
+
+logging.basicConfig(
+    filename="footlocker/monitor.log",
+    filemode="a",
+    format="%(asctime)s - %(name)s - %(message)s",
+    level=logging.DEBUG,
+)
 
 INSTOCK = []
 
-def discord_webhook(title, url, thumbnail, sku, price):
+
+async def send_to_discord(product, webhook):
     """
     Sends a Discord webhook notification to the specified webhook URL
     """
-    data = {
-        "username": USERNAME,
-        "avatar_url": AVATAR_URL,
-        "embeds": [{
-            "title": title,
-            "url": url,
-            "thumbnail": {"url": thumbnail},
-            "footer": {"text": "Sneak Cred"},
-            "timestamp": str(datetime.now(timezone.UTC)),
-            "color": int(COLOUR),
-            "fields": [
-                {"name": "SKU", "value": sku},
-                {"name": "Price", "value": price}
-            ]
-        }]
+    embed = {
+        "title": product["title"],
+        "url": product["url"],
+        "thumbnail": {"url": product["thumbnail"]},
+        "footer": {"text": "Sneak Cred"},
+        "timestamp": str(datetime.now(timezone.utc)),
+        "color": COLOUR,
+        "fields": [
+            {"name": "Price", "value": product["price"], "inline": True},
+            {"name": "SKU", "value": product["sku"], "inline": True},
+        ],
     }
 
-    result = requests.post(WEBHOOK, data=json.dumps(data), headers={"Content-Type": "application/json"})
+    await webhook.send(embed=embed, username=USERNAME, avatar_url=AVATAR_URL)
 
-    try:
-        result.raise_for_status()
-    except requests.exceptions.HTTPError as err:
-        logging.error(err)
-    else:
-        print("Payload delivered successfully, code {}.".format(result.status_code))
-        logging.info(msg="Payload delivered successfully, code {}.".format(result.status_code))
+    msg = product["title"] + " successfully sent."
+    print(msg)
+    logging.info(msg=msg)
 
 
-def monitor():
+async def monitor():
     """
-    Initiates monitor for the Off-Spring site
+    Initiates monitor for the Footlocker site
     """
-    print('''\n--------------------------------------
---- FOOTLOCKER MONITOR HAS STARTED ---
---------------------------------------\n''')
-    logging.info(msg='Successfully started monitor')
-
+    msg = "\n--------------------------------------\n--- FOOTLOCKER MONITOR HAS STARTED ---\n--------------------------------------\n"
+    print(msg)
+    logging.info(msg=msg)
 
     # Ensures that first scrape does not notify all products
     start = 1
 
-    # Initialising proxy and headers
-    if ENABLE_FREE_PROXY:
-        proxy = {'http': proxy_obj.get()}
-    elif PROXY != []:
-        proxy_no = 0
-        proxy = {} if PROXY == [] else {"http": PROXY[proxy_no], "https": PROXY[proxy_no]}
+    user_agent_rotator = create_user_agent_rotator()
+    headers = create_headers(user_agent_rotator)
+    proxy_obj = create_proxy_obj() if ENABLE_FREE_PROXY else None
+    proxy, proxy_no = create_proxy(proxy_obj)
+
+    if LOCATION == "US":
+        fetch_new_products = fetch_new_products_US
+    elif LOCATION == "GB":
+        fetch_new_products = fetch_new_products_GB
+    elif LOCATION == "AU":
+        fetch_new_products = fetch_new_products_AU
     else:
-        proxy = {}
+        print(
+            "LOCATION CURRENTLY NOT AVAILABLE. IF YOU BELIEVE THIS IS A MISTAKE PLEASE CREATE AN ISSUE ON GITHUB OR MESSAGE THE #issues CHANNEL IN DISCORD."
+        )
+        return
 
-    user_agent = user_agent_rotator.get_random_user_agent() 
-    
-    while True:
-        try:
-            # Makes request to site and stores products 
-            if LOCATION == 'US':
-                to_discord = US(INSTOCK, user_agent, proxy, KEYWORDS, start)
+    async with aiohttp.ClientSession() as session:
+        webhook = Webhook.from_url(WEBHOOK_URL, session=session)
+        while True:
+            try:
+                new_products = fetch_new_products(
+                    INSTOCK, user_agent_rotator, proxy, KEYWORDS, start
+                )
 
-            elif LOCATION == 'UK':
-                to_discord = UK(INSTOCK, user_agent, proxy, KEYWORDS, start)
+                for product in new_products:
+                    await send_to_discord(product, webhook)
 
-            elif LOCATION == 'AU':
-                to_discord = AU(INSTOCK, user_agent, proxy, KEYWORDS, start)
+            except requests.exceptions.RequestException as e:
+                logging.error(e)
+                logging.info("Rotating headers and proxy")
 
-            else:
-                print('LOCATION CURRENTLY NOT AVAILABLE. IF YOU BELIEVE THIS IS A MISTAKE PLEASE CREATE AN ISSUE ON GITHUB OR MESSAGE THE #issues CHANNEL IN DISCORD.')
-                return
+                headers = rotate_headers(headers, user_agent_rotator)
+                proxy, proxy_no = rotate_proxy(proxy_obj, proxy_no)
 
-            for product in to_discord:
-                discord_webhook(product['name'],product['url'], product['thumbnail'], product['sku'], product['price'])
-                print(product['name'])
-            
+            except Exception as e:
+                print(f"Exception found: {traceback.format_exc()}")
+                logging.error(e)
+
             # Allows changes to be notified
-            start = 0
-
-        except requests.exceptions.RequestException as e:
-            logging.error(e)
-            logging.info('Rotating headers and proxy')
-
-            if ENABLE_FREE_PROXY:
-                proxy = {'http': proxy_obj.get()}
-
-            elif PROXY != []:
-                proxy_no = 0 if proxy_no == (len(PROXY)-1) else proxy_no + 1
-                proxy = {"http": PROXY[proxy_no], "https": PROXY[proxy_no]}
-
-        except Exception as e:
-            print(f"Exception found: {traceback.format_exc()}")
-            logging.error(e)
-
-        # User set delay
-        time.sleep(float(DELAY))
+            start = False
+            # User set delay
+            time.sleep(float(DELAY))
 
 
-if  __name__ == '__main__':
-    monitor()
+if __name__ == "__main__":
+    urllib3.disable_warnings()
+    asyncio.run(monitor())

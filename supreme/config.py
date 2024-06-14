@@ -1,6 +1,4 @@
-# --------------------- WEBHOOK URL ---------------------
-WEBHOOK = "https://discord.com/api/webhooks/1158440034240827553/FRYDSuir_yoS25hsTYuz56WMkG0Bp4hwCZO9BWEVrAc0Zpgu7U4rsJWLzfK5T6WvtTQm"
-# --------------------- WEBHOOK URL ---------------------
+# --------------------- WEBHOOK_URL URL ---------------------
 WEBHOOK_URL = "https://discord.com/api/webhooks/1158440034240827553/FRYDSuir_yoS25hsTYuz56WMkG0Bp4hwCZO9BWEVrAc0Zpgu7U4rsJWLzfK5T6WvtTQm"
 
 # --------------------- DELAY ---------------------

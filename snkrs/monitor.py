@@ -17,11 +17,10 @@ from globalConfig import (
     LANGUAGE,
     LOCATION,
     STANDARD_LOCATIONS,
-    create_headers,
     create_proxy,
     create_proxy_obj,
+    create_user_agent,
     create_user_agent_rotator,
-    rotate_headers,
     rotate_proxy,
 )
 from globalConfig import SNEAK_CRED_GREEN as COLOUR
@@ -30,8 +29,8 @@ KEYWORDS = [keyword.lower() for keyword in KEYWORDS]
 CURRENCY_SYMBOL = CURRENCY_SYMBOLS[LOCATION] if LOCATION in CURRENCY_SYMBOLS else ""
 
 logging.basicConfig(
-    filename="snkrs-monitor.log",
-    filemode="a",
+    filename="snkrs/monitor.log",
+    filemode="w",
     format="%(asctime)s - %(name)s - %(message)s",
     level=logging.DEBUG,
 )
@@ -85,14 +84,12 @@ async def send_to_discord(product, webhook):
             ],
         }
     )
-    try:
-        await webhook.send(embed=embed, username=USERNAME, avatar_url=AVATAR_URL)
-    except Exception as e:
-        print(e)
-    else:
-        msg = product["title"] + " successfully sent."
-        print(msg)
-        logging.info(msg=msg)
+
+    await webhook.send(embed=embed, username=USERNAME, avatar_url=AVATAR_URL)
+
+    msg = product["title"] + " successfully sent."
+    print(msg)
+    logging.info(msg=msg)
 
 
 async def monitor():
@@ -107,9 +104,9 @@ async def monitor():
     start = False
 
     user_agent_rotator = create_user_agent_rotator()
-    headers = create_headers(user_agent_rotator)
+    user_agent = create_user_agent(user_agent_rotator)
     proxy_obj = create_proxy_obj() if ENABLE_FREE_PROXY else None
-    proxy = create_proxy(proxy_obj)
+    proxy, proxy_no = create_proxy(proxy_obj)
 
     if LOCATION in STANDARD_LOCATIONS:
         fetch_new_products = fetch.fetch_new_products
@@ -131,7 +128,7 @@ async def monitor():
                     INSTOCK,
                     LOCATION,
                     LANGUAGE,
-                    user_agent_rotator,
+                    user_agent,
                     proxy,
                     KEYWORDS,
                     start,
@@ -141,10 +138,9 @@ async def monitor():
 
             except rq.exceptions.RequestException as e:
                 logging.error(e)
-                logging.info("Rotating headers and proxy")
+                logging.info("Rotating proxy")
 
-                rotate_headers(headers, user_agent_rotator)
-                rotate_proxy(proxy_obj)
+                proxy, proxy_no = rotate_proxy(proxy_obj, proxy_no)
             except Exception as e:
                 print(f"Exception found: {traceback.format_exc()}")
                 logging.error(e)

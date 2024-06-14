@@ -12,7 +12,7 @@ import logging
 import traceback
 
 from config import (
-    WEBHOOK,
+    WEBHOOK_URL,
     ENABLE_FREE_PROXY,
     FREE_PROXY_LOCATION,
     DELAY,
@@ -24,7 +24,7 @@ from config import (
 )
 
 logging.basicConfig(
-    filename="offspring-monitor.log",
+    filename="offspring/monitor.log",
     filemode="a",
     format="%(asctime)s - %(name)s - %(message)s",
     level=logging.DEBUG,
@@ -99,7 +99,7 @@ def discord_webhook(title, url, thumbnail, colour):
     }
 
     result = requests.post(
-        WEBHOOK, data=json.dumps(data), headers={"Content-Type": "application/json"}
+        WEBHOOK_URL, data=json.dumps(data), headers={"Content-Type": "application/json"}
     )
 
     try:

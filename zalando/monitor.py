@@ -15,7 +15,7 @@ import logging
 import traceback
 
 from config import (
-    WEBHOOK,
+    WEBHOOK_URL,
     ENABLE_FREE_PROXY,
     FREE_PROXY_LOCATION,
     DELAY,
@@ -27,7 +27,7 @@ from config import (
 )
 
 logging.basicConfig(
-    filename="zalando-monitor.log",
+    filename="zalando/monitor.log",
     filemode="a",
     format="%(asctime)s - %(name)s - %(message)s",
     level=logging.DEBUG,
@@ -118,7 +118,7 @@ def discord_webhook(product):
     }
 
     result = requests.post(
-        WEBHOOK, data=json.dumps(data), headers={"Content-Type": "application/json"}
+        WEBHOOK_URL, data=json.dumps(data), headers={"Content-Type": "application/json"}
     )
 
     try:
@@ -182,7 +182,6 @@ def monitor():
             # Makes request to site and stores products
             items = scrape_main_site(headers, proxy)
             for item in items:
-
                 if KEYWORDS == []:
                     # If no keywords set, checks whether item status has changed
                     comparitor(item, start)

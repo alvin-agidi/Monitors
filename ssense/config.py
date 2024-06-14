@@ -1,7 +1,7 @@
 from globalConfig import SNEAK_CRED_GREEN
 
-# --------------------- WEBHOOK URL ---------------------
-WEBHOOK = ""
+# --------------------- WEBHOOK_URL URL ---------------------
+WEBHOOK_URL = ""
 
 # --------------------- FREE PROXY ---------------------
 # A single or multiple locations can be added in the array (e.g. ["GB"] or ["GB", "US"])

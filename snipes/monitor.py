@@ -14,9 +14,9 @@ import json
 import logging
 import traceback
 
-from config import WEBHOOK, ENABLE_FREE_PROXY, FREE_PROXY_LOCATION, DELAY, PROXY, KEYWORDS, USERNAME, AVATAR_URL, COLOUR
+from config import WEBHOOK_URL, ENABLE_FREE_PROXY, FREE_PROXY_LOCATION, DELAY, PROXY, KEYWORDS, USERNAME, AVATAR_URL, COLOUR
 
-logging.basicConfig(filename='snipes-monitor.log', filemode='a', format='%(asctime)s - %(name)s - %(message)s',
+logging.basicConfig(filename='snipes/monitor.log', filemode='a', format='%(asctime)s - %(name)s - %(message)s',
                     level=logging.DEBUG)
 
 software_names = [SoftwareName.CHROME.value]
@@ -51,7 +51,7 @@ def discord_webhook(title, url, id, price, colour, thumbnail):
         }]
     }
 
-    result = requests.post(WEBHOOK, data=json.dumps(data), headers={"Content-Type": "application/json"})
+    result = requests.post(WEBHOOK_URL, data=json.dumps(data), headers={"Content-Type": "application/json"})
 
     try:
         result.raise_for_status()

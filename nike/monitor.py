@@ -14,7 +14,7 @@ import traceback
 
 import locations
 from config import (
-    WEBHOOK,
+    WEBHOOK_URL,
     LOCATION,
     LANGUAGE,
     ENABLE_FREE_PROXY,
@@ -29,7 +29,7 @@ from config import (
 
 
 logging.basicConfig(
-    filename="nike-monitor.log",
+    filename="nike/monitor.log",
     filemode="a",
     format="%(asctime)s - %(name)s - %(message)s",
     level=logging.DEBUG,
@@ -73,7 +73,7 @@ def discord_webhook(title, colour, url, thumbnail, price, style_code):
     }
 
     result = rq.post(
-        WEBHOOK, data=json.dumps(data), headers={"Content-Type": "application/json"}
+        WEBHOOK_URL, data=json.dumps(data), headers={"Content-Type": "application/json"}
     )
 
     try:
@@ -117,7 +117,7 @@ def monitor():
         # Makes request to site and stores products
         try:
             if LOCATION in locations.___standard_api___:
-                to_discord = locations.standard_api(
+                new_products = locations.standard_api(
                     INSTOCK, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start
                 )
 
@@ -127,7 +127,7 @@ def monitor():
                 )
                 return
 
-            for product in to_discord:
+            for product in new_products:
                 discord_webhook(
                     product["title"],
                     product["colour"],

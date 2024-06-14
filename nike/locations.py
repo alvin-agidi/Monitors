@@ -25,7 +25,7 @@ def standard_api(ITEMS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start):
         'Expires': '0'
     }
 
-    to_discord = []
+    new_products = []
     
     anchor = 0
     while anchor < 181:
@@ -39,14 +39,16 @@ def standard_api(ITEMS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start):
                 if KEYWORDS == []:
                     if (variant['inStock'] == True) and (variant['pid'] not in ITEMS):
                         if start == 0:
-                            to_discord.append(dict(
-                                title=item['title'],
-                                colour=variant['colorDescription'],
-                                url=f"https://www.nike.com/{LOCATION}/{variant['pdpUrl'].replace('{countryLang}', LANGUAGE)}",
-                                thumbnail=variant['images']['squarishURL'],
-                                price=str(variant['price']['currentPrice']),
-                                style_code=variant['pdpUrl'].split('/')[-1]
-                            ))
+                            new_products.append(
+                                dict(
+                                    title=item["title"],
+                                    colour=variant["colorDescription"],
+                                    url=f"https://www.nike.com/{LOCATION}/{variant['pdpUrl'].replace('{countryLang}', LANGUAGE)}",
+                                    thumbnail=variant["images"]["squarishURL"],
+                                    price=str(variant["price"]["currentPrice"]),
+                                    style_code=variant["pdpUrl"].split("/")[-1],
+                                )
+                            )
 
                     elif (variant['inStock'] == False) and (variant['pid'] in ITEMS):
                         ITEMS.remove(variant['id'])
@@ -55,7 +57,7 @@ def standard_api(ITEMS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start):
                     for key in KEYWORDS:
                         if key.lower() in item['title'].lower():
                             if start == 0:
-                                to_discord.append(dict(
+                                new_products.append(dict(
                                     title=item['title'],
                                     colour=variant['colorDescription'],
                                     url=f"https://www.nike.com/{LOCATION}/{variant['pdpUrl'].replace('{countryLang}', LANGUAGE)}",
@@ -65,4 +67,4 @@ def standard_api(ITEMS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start):
                                 ))
                 
         anchor += 60
-    return to_discord
+    return new_products

@@ -74,6 +74,10 @@ def create_user_agent_rotator():
     return UserAgent(software_names=SOFTWARE_NAMES, hardware_type=HARDWARE_TYPE)
 
 
+def create_user_agent(user_agent_rotator):
+    return user_agent_rotator.get_random_user_agent()
+
+
 def create_headers(user_agent_rotator):
     return {
         "user-agent": user_agent_rotator.get_random_user_agent(),

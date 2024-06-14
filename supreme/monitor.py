@@ -12,9 +12,10 @@ from bs4 import BeautifulSoup
 from config import AVATAR_URL, DELAY, KEYWORDS, USERNAME, WEBHOOK_URL
 from discord import Embed, Webhook
 
-from globalConfig import CURRENCY_SYMBOLS, ENABLE_FREE_PROXY, LOCATION
-from globalConfig import SNEAK_CRED_GREEN as COLOUR
 from globalConfig import (
+    CURRENCY_SYMBOLS,
+    ENABLE_FREE_PROXY,
+    LOCATION,
     create_headers,
     create_proxy,
     create_proxy_obj,
@@ -22,12 +23,13 @@ from globalConfig import (
     rotate_headers,
     rotate_proxy,
 )
+from globalConfig import SNEAK_CRED_GREEN as COLOUR
 
 KEYWORDS = [keyword.lower() for keyword in KEYWORDS]
 CURRENCY_SYMBOL = CURRENCY_SYMBOLS[LOCATION] if LOCATION in CURRENCY_SYMBOLS else ""
 
 logging.basicConfig(
-    filename="supreme-monitor.log",
+    filename="supreme/monitor.log",
     filemode="a",
     format="%(asctime)s - %(name)s - %(message)s",
     level=logging.DEBUG,
@@ -50,20 +52,20 @@ async def send_to_discord(product, webhook):
             "footer": {"text": "Sneak Cred"},
             "timestamp": str(datetime.now(timezone.utc)),
             "fields": [
-                {"name": "Price", "value": CURRENCY_SYMBOL + product["price"]},
+                {
+                    "name": "Price",
+                    "value": CURRENCY_SYMBOL + product["price"],
+                },
                 {"name": "Sizes", "value": product["sizes"]},
             ],
         }
     )
 
-    try:
-        await webhook.send(embed=embed, username=USERNAME, avatar_url=AVATAR_URL)
-    except Exception as e:
-        print(e)
-    else:
-        msg = product["title"] + " successfully sent."
-        print(msg)
-        logging.info(msg=msg)
+    await webhook.send(embed=embed, username=USERNAME, avatar_url=AVATAR_URL)
+
+    msg = product["title"] + " successfully sent."
+    print(msg)
+    logging.info(msg=msg)
 
 
 def fetch_new_products(products, start):
@@ -144,13 +146,13 @@ async def monitor():
 
                 headers = rotate_headers(headers, user_agent_rotator)
                 proxy, proxy_no = rotate_proxy(proxy_obj, proxy_no)
+
             except Exception as e:
                 print(f"Exception found: {traceback.format_exc()}")
                 logging.error(e)
 
             # Allows changes to be notified
             start = False
-
             # User set delay
             time.sleep(float(DELAY))
 
