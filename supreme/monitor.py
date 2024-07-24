@@ -122,7 +122,7 @@ async def monitor():
     logging.info(msg=msg)
 
     # Ensures that first scrape does not notify all products
-    start = False
+    start = True
 
     user_agent_rotator = create_user_agent_rotator()
     headers = create_headers(user_agent_rotator)
