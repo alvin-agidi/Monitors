@@ -3,6 +3,7 @@ python monitor.py
 
 nohup python snkrs/monitor.py > /dev/null 2>&1 & echo $! > snkrs/pid.txt
 nohup python supreme/monitor.py > /dev/null 2>&1 & echo $! > supreme/pid.txt
+nohup python houseoffraser/monitor.py > /dev/null 2>&1 & echo $! > houseoffraser/pid.txt
 ps -ef | grep monitor
 
 sudo dnf config-manager --enable ol8_developer_EPEL
