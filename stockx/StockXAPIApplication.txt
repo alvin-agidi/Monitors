@@ -1,0 +1,6 @@
+A very simple web scraper to identify products with potential profit margins
+All rate limits will be adhered to, but I don't expect to generate much traffic for the API anyway.
+I require basic access to the asks, bids, and product sales.
+The information will then be sent to a Discord Server using a bot; from there, people can make purchases using links provided by the bot.
+This application would be beneficial to StockX as it would increase sales.
+I do not plan to use the APU to create listings.
