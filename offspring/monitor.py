@@ -51,7 +51,7 @@ def scrape_main_site(headers, proxy):
     # Makes request to site
     url = "https://www.offspring.co.uk/view/category/offspring_catalog/1.json?sort=-releasedate"
     s = requests.Session()
-    html = s.get(url=url, headers=headers, proxies=proxy)
+    html = s.get(url=url, headers=headers, proxies=proxies)
 
     output = json.loads(str(html.text))
 

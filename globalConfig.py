@@ -91,16 +91,16 @@ def create_proxy_obj():
     return FreeProxy(country_id=FREE_PROXY_LOCATION, rand=True)
 
 
-def create_proxy(proxy_obj):
+def create_proxies(proxy_obj):
     proxy_no = 0
     if proxy_obj:
-        proxy = {"http": proxy_obj.get()}
+        proxies = {"http": proxy_obj.get()}
     elif PROXY != []:
-        proxy = {"http": PROXY[proxy_no], "https": PROXY[proxy_no]}
+        proxies = {"http": PROXY[proxy_no], "https": PROXY[proxy_no]}
     else:
-        proxy = {}
+        proxies = {}
 
-    return proxy, proxy_no
+    return proxies, proxy_no
 
 
 def rotate_headers(headers, user_agent_rotator):
@@ -108,11 +108,11 @@ def rotate_headers(headers, user_agent_rotator):
     return headers
 
 
-def rotate_proxy(proxy_obj, proxy_no):
+def rotate_proxies(proxy_obj, proxy_no):
     if proxy_obj:
-        proxy = {"http": proxy_obj.get()}
+        proxies = {"http": proxy_obj.get()}
     elif PROXY != []:
         proxy_no = (proxy_no + 1) % len(PROXY)
-        proxy = {"http": PROXY[proxy_no], "https": PROXY[proxy_no]}
+        proxies = {"http": PROXY[proxy_no], "https": PROXY[proxy_no]}
 
-    return proxy, proxy_no
+    return proxies, proxy_no

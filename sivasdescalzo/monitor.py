@@ -46,7 +46,7 @@ def scrape_main_site(headers, proxy):
     for page in [1, 2, 3, 4]:
         url = f'https://www.sivasdescalzo.com/en/footwear?p={page}'
         s = requests.Session()
-        html = s.get(url=url, headers=headers, proxies=proxy, verify=False, timeout=15)
+        html = s.get(url=url, headers=headers, proxies=proxies, verify=False, timeout=15)
         s.close()
         soup = BeautifulSoup(html.text, 'html.parser')
         products = soup.find_all('li',  {'class': 'item product product-item grid-col'})

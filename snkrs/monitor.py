@@ -17,11 +17,11 @@ from globalConfig import (
     LANGUAGE,
     LOCATION,
     STANDARD_LOCATIONS,
-    create_proxy,
+    create_proxies,
     create_proxy_obj,
     create_user_agent,
     create_user_agent_rotator,
-    rotate_proxy,
+    rotate_proxies,
 )
 from globalConfig import SNEAK_CRED_GREEN as COLOUR
 
@@ -34,7 +34,6 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(message)s",
     level=logging.DEBUG,
 )
-
 
 INSTOCK = []
 
@@ -106,7 +105,7 @@ async def monitor():
     user_agent_rotator = create_user_agent_rotator()
     user_agent = create_user_agent(user_agent_rotator)
     proxy_obj = create_proxy_obj() if ENABLE_FREE_PROXY else None
-    proxy, proxy_no = create_proxy(proxy_obj)
+    proxies, proxy_no = create_proxies(proxy_obj)
 
     if LOCATION in STANDARD_LOCATIONS:
         fetch_new_products = fetch.fetch_new_products
@@ -129,7 +128,7 @@ async def monitor():
                     LOCATION,
                     LANGUAGE,
                     user_agent,
-                    proxy,
+                    proxies,
                     KEYWORDS,
                     start,
                 )
@@ -140,7 +139,7 @@ async def monitor():
                 logging.error(e)
                 logging.info("Rotating proxy")
 
-                proxy, proxy_no = rotate_proxy(proxy_obj, proxy_no)
+                proxy, proxy_no = rotate_proxies(proxy_obj, proxy_no)
             except Exception as e:
                 print(f"Exception found: {traceback.format_exc()}")
                 logging.error(e)

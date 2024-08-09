@@ -15,7 +15,7 @@ def fetch_new_products_US(ITEMS, user_agent, proxy, KEYWORDS, start):
         "user-agent": user_agent,
     }
     url = "https://www.footlocker.com/api/products/search?query=men&currentPage=1&sort=newArrivals&pageSize=60"
-    html = requests.get(url=url, headers=headers, proxies=proxy)
+    html = requests.get(url=url, headers=headers, proxies=proxies)
 
     try:
         output = json.loads(html.text)["products"]
@@ -102,7 +102,7 @@ def fetch_new_products_GB(ITEMS, user_agent, proxy, KEYWORDS, start):
         "user-agent": user_agent,
         "x-api-lang": "en-GB",
     }
-    html = requests.get(url=url, headers=headers, proxies=proxy)
+    html = requests.get(url=url, headers=headers, proxies=proxies)
     output = json.loads(html.text)["products"]
     new_products = []
 
@@ -183,7 +183,7 @@ def fetch_new_products_AU(ITEMS, user_agent, proxy, KEYWORDS, start):
         "x-fl-request-id": "1470ff80-fae4-11ec-8f44-7b3338a6657b",
         "x-flapi-session-id": "th0pgu3oo28l13bhvwqj5yq3i.fzcxwefapipdb828881",
     }
-    html = requests.get(url=url, headers=headers, proxies=proxy)
+    html = requests.get(url=url, headers=headers, proxies=proxies)
 
     try:
         output = json.loads(html.text)["products"]

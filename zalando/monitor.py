@@ -54,7 +54,9 @@ def scrape_main_site(headers, proxy):
     for page in [1, 2, 3, 4]:
         url = f"https://www.zalando.co.uk/mens-shoes-trainers/?p={page}&order=activation_date"
         s = requests.Session()
-        html = s.get(url=url, headers=headers, proxies=proxy, verify=False, timeout=15)
+        html = s.get(
+            url=url, headers=headers, proxies=proxies, verify=False, timeout=15
+        )
         s.close()
         soup = BeautifulSoup(html.text, "html.parser")
         products = soup.find_all(

@@ -61,7 +61,7 @@ def fetch_new_products(
     while anchor < 160:
         url = f"https://api.nike.com/product_feed/threads/v3/?anchor={anchor}&count=50&filter=marketplace%28{LOCATION}%29&filter=language%28{LANGUAGE}%29&filter=channelId%28010794e5-35fe-4e32-aaff-cd2c74f89d61%29&filter=exclusiveAccess%28true%2Cfalse%29"
         html = requests.get(
-            url=url, timeout=20, verify=False, headers=headers, proxies=proxy
+            url=url, timeout=20, verify=False, headers=headers, proxies=proxies
         )
         output = json.loads(html.text)
 
@@ -173,7 +173,7 @@ def brazil(PRODUCTS, user_agent, proxy, KEYWORDS, start):
         "Expires": "0",
     }
     new_products = []
-    html = requests.get(url=url, headers=headers, proxies=proxy)
+    html = requests.get(url=url, headers=headers, proxies=proxies)
     soup = BeautifulSoup(html.text, "html.parser")
     output = soup.find_all("div", {"class": "produto produto--esgotado"})
     for product in output:

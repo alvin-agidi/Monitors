@@ -23,11 +23,11 @@ from globalConfig import (
     ENABLE_FREE_PROXY,
     LOCATION,
     create_headers,
-    create_proxy,
+    create_proxies,
     create_proxy_obj,
     create_user_agent_rotator,
     rotate_headers,
-    rotate_proxy,
+    rotate_proxies,
 )
 from globalConfig import SNEAK_CRED_GREEN as COLOUR
 
@@ -89,7 +89,7 @@ async def monitor():
     user_agent_rotator = create_user_agent_rotator()
     headers = create_headers(user_agent_rotator)
     proxy_obj = create_proxy_obj() if ENABLE_FREE_PROXY else None
-    proxy, proxy_no = create_proxy(proxy_obj)
+    proxies, proxy_no = create_proxies(proxy_obj)
 
     if LOCATION == "US":
         fetch_new_products = fetch_new_products_US
@@ -119,7 +119,7 @@ async def monitor():
                 logging.info("Rotating headers and proxy")
 
                 headers = rotate_headers(headers, user_agent_rotator)
-                proxy, proxy_no = rotate_proxy(proxy_obj, proxy_no)
+                proxy, proxy_no = rotate_proxies(proxy_obj, proxy_no)
 
             except Exception as e:
                 print(f"Exception found: {traceback.format_exc()}")

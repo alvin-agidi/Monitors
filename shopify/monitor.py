@@ -44,7 +44,7 @@ def scrape_site(url, headers, proxy):
     s = rq.Session()
     page = 1
     while True:
-        html = s.get(url + f'?page={page}&limit=250', headers=headers, proxies=proxy, verify=False, timeout=20)
+        html = s.get(url + f'?page={page}&limit=250', headers=headers, proxies=proxies, verify=False, timeout=20)
         output = json.loads(html.text)['products']
         if output == []:
             break

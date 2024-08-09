@@ -78,7 +78,13 @@ def scrape_main_site(headers, proxy):
 
     # Makes request to site
     s = requests.Session()
-    html = s.get('https://www.snipes.com/c/shoes?srule=New&sz=48', headers=headers, proxies=proxy, verify=False, timeout=50)
+    html = s.get(
+        "https://www.snipes.com/c/shoes?srule=New&sz=48",
+        headers=headers,
+        proxies=proxies,
+        verify=False,
+        timeout=50,
+    )
     soup = BeautifulSoup(html.text, 'html.parser')
     array = soup.find_all('div', {'class': 'b-product-grid-tile'})
 

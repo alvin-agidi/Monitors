@@ -17,7 +17,7 @@ from globalConfig import (
     ENABLE_FREE_PROXY,
     LOCATION,
     create_headers,
-    create_proxy,
+    create_proxies,
     create_proxy_obj,
     create_user_agent_rotator,
     rotate_headers,
@@ -104,7 +104,7 @@ def fetch_new_products(products, start):
 # def scrape_site(headers, proxy):
 # url = "https://www.selfridges.com/GB/en/cat/mens/on_sale/alexander-mcqueen/amiri/axel-arigato/balenciaga/burberry/balmain/billionaire-boys-club/bvlgari/comme-des-garcons/comme-des-garcons-play/cp-company/dickies/dolce-gabbana/diesel/dsquared2/fear-of-god-essentials/gallery-dept/kenzo/givenchy/jordan/emporio-armani/icecream/moncler/off-white-c-o-virgil-abloh/patagonia/prada/giorgio-armani/fendi/lanvin/lacoste/represent/market/palm-angels/rick-owens/tom-ford/versace/timberland/valentino-garavani/a-bathing-ape/cartier/oakley/nike/polo-ralph-lauren/carhartt-wip/adidas/common-projects/fear-of-god/vivienne-westwood/?fh_sort_by=price_asc&pn=1"
 
-# html = requests.get(url, headers=headers, proxies=proxy)
+# html = requests.get(url, headers=headers, proxies=proxies)
 # print(html)
 # soup = BeautifulSoup(html.text, "html.parser")
 # print(soup)
@@ -160,7 +160,7 @@ async def monitor():
     user_agent_rotator = create_user_agent_rotator()
     headers = create_headers(user_agent_rotator)
     proxy_obj = create_proxy_obj() if ENABLE_FREE_PROXY else None
-    proxy, proxy_no = create_proxy(proxy_obj)
+    proxies, proxy_no = create_proxies(proxy_obj)
 
     async with aiohttp.ClientSession() as session:
         webhook = Webhook.from_url(WEBHOOK_URL, session=session)
