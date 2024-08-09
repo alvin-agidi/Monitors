@@ -145,7 +145,7 @@ async def monitor():
                 logging.info("Rotating headers and proxy")
 
                 headers = rotate_headers(headers, user_agent_rotator)
-                proxy, proxy_no = rotate_proxies(proxy_obj, proxy_no)
+                proxies, proxy_no = rotate_proxies(proxy_obj, proxy_no)
 
             except Exception as e:
                 print(f"Exception found: {traceback.format_exc()}")

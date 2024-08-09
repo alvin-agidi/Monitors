@@ -3,7 +3,7 @@ import json
 import time
 
 
-def fetch_new_products_US(ITEMS, user_agent, proxy, KEYWORDS, start):
+def fetch_new_products_US(ITEMS, user_agent, proxies, KEYWORDS, start):
     headers = {
         "accept": "application/json",
         "accept-encoding": "gzip, deflate, br",
@@ -90,7 +90,7 @@ def fetch_new_products_US(ITEMS, user_agent, proxy, KEYWORDS, start):
     return new_products
 
 
-def fetch_new_products_GB(ITEMS, user_agent, proxy, KEYWORDS, start):
+def fetch_new_products_GB(ITEMS, user_agent, proxies, KEYWORDS, start):
     url = "https://www.footlocker.co.uk/api/products/search?query=men&currentPage=1&sort=newArrivals&pageSize=60"
     headers = {
         "accept": "application/json",
@@ -170,7 +170,7 @@ def fetch_new_products_GB(ITEMS, user_agent, proxy, KEYWORDS, start):
     return new_products
 
 
-def fetch_new_products_AU(ITEMS, user_agent, proxy, KEYWORDS, start):
+def fetch_new_products_AU(ITEMS, user_agent, proxies, KEYWORDS, start):
     url = "https://www.footlocker.com.au/api/products/search?query=men&currentPage=1&sort=newArrivals&pageSize=60"
     headers = {
         "accept": "application/json",

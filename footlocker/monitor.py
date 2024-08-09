@@ -108,7 +108,7 @@ async def monitor():
         while True:
             try:
                 new_products = fetch_new_products(
-                    INSTOCK, user_agent_rotator, proxy, KEYWORDS, start
+                    INSTOCK, user_agent_rotator, proxies, KEYWORDS, start
                 )
 
                 for product in new_products:
@@ -119,7 +119,7 @@ async def monitor():
                 logging.info("Rotating headers and proxy")
 
                 headers = rotate_headers(headers, user_agent_rotator)
-                proxy, proxy_no = rotate_proxies(proxy_obj, proxy_no)
+                proxies, proxy_no = rotate_proxies(proxy_obj, proxy_no)
 
             except Exception as e:
                 print(f"Exception found: {traceback.format_exc()}")

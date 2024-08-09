@@ -35,7 +35,7 @@ async def get_content(url, user_agent, proxy):
 
 
 def fetch_new_products(
-    PRODUCTS, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start
+    PRODUCTS, LOCATION, LANGUAGE, user_agent, proxies, KEYWORDS, start
 ):
     headers = {
         "accept": "*/*",
@@ -155,7 +155,7 @@ def fetch_new_products(
     return new_products
 
 
-def brazil(PRODUCTS, user_agent, proxy, KEYWORDS, start):
+def brazil(PRODUCTS, user_agent, proxies, KEYWORDS, start):
     # need to bs4
     url = "https://www.nike.com.br/Snkrs/Feed?p=2&demanda=true"
     headers = {
@@ -221,11 +221,11 @@ def brazil(PRODUCTS, user_agent, proxy, KEYWORDS, start):
     return new_products
 
 
-def chile(PRODUCTS, user_agent, proxy, KEYWORDS, start):
+def chile(PRODUCTS, user_agent, proxies, KEYWORDS, start):
     url = "https://www.nike.cl/api/catalog_system/pub/products/search?&_from=0&_to=49"
     new_products = []
     html = asyncio.get_event_loop().run_until_complete(
-        get_content(url, user_agent, proxy)
+        get_content(url, user_agent, proxies)
     )
     html = html.replace("</pre></body></html>", "").replace(
         '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">',

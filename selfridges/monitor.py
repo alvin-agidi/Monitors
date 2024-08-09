@@ -21,7 +21,7 @@ from globalConfig import (
     create_proxy_obj,
     create_user_agent_rotator,
     rotate_headers,
-    rotate_proxy,
+    rotate_proxies,
 )
 from globalConfig import SNEAK_CRED_GREEN as COLOUR
 
@@ -167,7 +167,7 @@ async def monitor():
         while True:
             try:
                 # Makes request to site and stores products
-                products = scrape_site(proxy, headers)
+                products = scrape_site(proxies, headers)
                 new_products = fetch_new_products(products, start)
 
                 for product in new_products:
@@ -178,7 +178,7 @@ async def monitor():
                 logging.info("Rotating headers and proxy")
 
                 headers = rotate_headers(headers, user_agent_rotator)
-                proxy, proxy_no = rotate_proxy(proxy_obj, proxy_no)
+                proxies, proxy_no = rotate_proxies(proxy_obj, proxy_no)
 
             except Exception as e:
                 print(f"Exception found: {traceback.format_exc()}")

@@ -118,7 +118,7 @@ def monitor():
         try:
             if LOCATION in locations.___standard_api___:
                 new_products = locations.standard_api(
-                    INSTOCK, LOCATION, LANGUAGE, user_agent, proxy, KEYWORDS, start
+                    INSTOCK, LOCATION, LANGUAGE, user_agent, proxies, KEYWORDS, start
                 )
 
             else:
