@@ -101,7 +101,7 @@ def fetch_new_products(products, start):
     return new_products
 
 
-def scrape_site(headers, proxy):
+def scrape_site(headers, proxies):
     url = "https://uk.supreme.com/collections/all"
 
     html = requests.get(url, headers=headers, proxies=proxies)
