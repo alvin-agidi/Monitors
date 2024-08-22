@@ -145,9 +145,6 @@ def comparitor(item, start):
 
 
 def monitor():
-    """
-    Initiates monitor
-    """
     print(
         """\n-----------------------------------
 --- ZALANDO MONITOR HAS STARTED ---

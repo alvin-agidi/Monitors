@@ -151,9 +151,6 @@ def comparitor(item, start):
 
 
 def monitor():
-    """
-    Initiates monitor
-    """
     print('''\n----------------------------------
 --- SSENSE MONITOR HAS STARTED ---
 ----------------------------------\n''')

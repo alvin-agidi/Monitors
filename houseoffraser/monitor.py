@@ -98,7 +98,8 @@ def fetch_new_sizes(start, headers, proxies):
     )
     desc = soup.find("span", {"id": "colourName"}).get_text().strip()
     price = soup.find("span", {"id": "lblSellingPrice"}).get_text()
-    thumbnail = soup.find("img", {"id": "imgProduct"}).get("src")
+    thumbnail = soup.find("img", {"id": "imgProduct_1"}).get("src")
+    print(thumbnail)
 
     instock_sizes = [
         size_element.get("data-text").split("(")[0].split()[0]
@@ -124,6 +125,10 @@ def fetch_new_sizes(start, headers, proxies):
 
 
 async def monitor():
+    msg = "--- HOUSE OF FRASER MONITOR HAS STARTED ---\n"
+    print(msg)
+    logging.info(msg=msg)
+
     start = False
 
     user_agent_rotator = create_user_agent_rotator()

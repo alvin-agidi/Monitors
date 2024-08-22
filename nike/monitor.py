@@ -88,9 +88,6 @@ def discord_webhook(title, colour, url, thumbnail, price, style_code):
 
 
 def monitor():
-    """
-    Initiates the monitor
-    """
     print(
         """\n---------------------------------
 --- NIKE MONITOR HAS STARTED ---

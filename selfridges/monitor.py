@@ -147,9 +147,6 @@ def scrape_site(headers, proxy):
 
 
 async def monitor():
-    """
-    Initiates the monitor
-    """
     msg = "\n--------------------------------------\n--- SELFRIDGES MONITOR HAS STARTED ---\n--------------------------------------\n"
     print(msg)
     logging.info(msg=msg)

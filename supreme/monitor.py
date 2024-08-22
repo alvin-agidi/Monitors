@@ -114,9 +114,6 @@ def scrape_site(headers, proxies):
 
 
 async def monitor():
-    """
-    Initiates the monitor
-    """
     msg = "\n-----------------------------------\n--- SUPREME MONITOR HAS STARTED ---\n-----------------------------------\n"
     print(msg)
     logging.info(msg=msg)

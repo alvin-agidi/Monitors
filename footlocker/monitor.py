@@ -76,9 +76,6 @@ async def send_to_discord(product, webhook):
 
 
 async def monitor():
-    """
-    Initiates monitor for the Footlocker site
-    """
     msg = "\n--------------------------------------\n--- FOOTLOCKER MONITOR HAS STARTED ---\n--------------------------------------\n"
     print(msg)
     logging.info(msg=msg)

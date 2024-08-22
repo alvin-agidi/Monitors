@@ -135,9 +135,6 @@ def comparitor(product, start):
 
 
 def monitor():
-    """
-    Initiates monitor for the Off-Spring site
-    """
     print(
         """\n-------------------------------------
 --- OFFSPRING MONITOR HAS STARTED ---

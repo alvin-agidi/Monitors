@@ -92,9 +92,6 @@ async def send_to_discord(product, webhook):
 
 
 async def monitor():
-    """
-    Initiates the monitor
-    """
     msg = "\n---------------------------------\n--- SNKRS MONITOR HAS STARTED ---\n---------------------------------\n"
     print(msg)
     logging.info(msg=msg)

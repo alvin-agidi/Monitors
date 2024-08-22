@@ -191,9 +191,6 @@ def comparitor(product, start):
 
 
 def monitor():
-    """
-    Initiates the monitor
-    """
     print("""\n-----------------------------------
 --- SHOPIFY MONITOR HAS STARTED ---
 -----------------------------------\n""")

@@ -110,9 +110,6 @@ def comparitor(item, start):
 
 
 def monitor():
-    """
-    Initiates monitor
-    """
     print('''\n-----------------------------------------
 --- SIVASDESCALZO MONITOR HAS STARTED ---
 -----------------------------------------\n''')
