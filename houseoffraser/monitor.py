@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 import requests
 from bs4 import BeautifulSoup
-from config import AVATAR_URL, DELAY, KEYWORDS, USERNAME, WEBHOOK_URL
+from config import DELAY, KEYWORDS, WEBHOOK_URL
 from discord import Embed, Webhook
 
 from globalConfig import (
@@ -24,6 +24,7 @@ from globalConfig import (
     create_user_agent_rotator,
     rotate_headers,
     rotate_proxies,
+    send_msg,
 )
 from globalConfig import SNEAK_CRED_GREEN as COLOUR
 
@@ -53,7 +54,7 @@ headers = {
 }
 
 
-async def send_to_discord(product, webhook):
+async def send_product(product, webhook):
     """
     Sends a Discord webhook notification to the specified webhook URL
     """
@@ -73,7 +74,7 @@ async def send_to_discord(product, webhook):
         }
     )
 
-    await webhook.send(embed=embed, username=USERNAME, avatar_url=AVATAR_URL)
+    await webhook.send(embed=embed)
 
     msg = product["title"] + " (" + product["size"] + ") successfully sent."
     print(msg)
@@ -99,8 +100,6 @@ def fetch_new_sizes(start, headers, proxies):
     desc = soup.find("span", {"id": "colourName"}).get_text().strip()
     price = soup.find("span", {"id": "lblSellingPrice"}).get_text()
     thumbnail = soup.find("img", {"id": "imgProduct_1"}).get("src")
-    print(thumbnail)
-
     instock_sizes = [
         size_element.get("data-text").split("(")[0].split()[0]
         for size_element in soup.findAll("li", {"class": "tooltip sizeButtonli"})
@@ -129,7 +128,7 @@ async def monitor():
     print(msg)
     logging.info(msg=msg)
 
-    start = False
+    start = True
 
     user_agent_rotator = create_user_agent_rotator()
     global headers
@@ -139,11 +138,12 @@ async def monitor():
 
     async with aiohttp.ClientSession() as session:
         webhook = Webhook.from_url(WEBHOOK_URL, session=session)
+        await send_msg("Monitor has started", "", webhook, COLOUR=COLOUR)
         while True:
             try:
                 new_products = fetch_new_sizes(start, headers, proxies)
                 for product in new_products:
-                    await send_to_discord(product, webhook)
+                    await send_product(product, webhook)
 
             except requests.exceptions.RequestException as e:
                 logging.error(e)
@@ -154,7 +154,10 @@ async def monitor():
 
             except Exception as e:
                 print(f"Exception found: {traceback.format_exc()}")
-                logging.error(e)
+                print(e)
+                await send_msg("Monitor has stopped", f"Exception found: {e}", webhook)
+                logging.error(traceback.format_exc())
+                break
 
             # Allows changes to be notified
             start = False

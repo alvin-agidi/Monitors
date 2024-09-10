@@ -9,7 +9,7 @@ import aiohttp
 import requests
 import urllib3
 from bs4 import BeautifulSoup
-from config import AVATAR_URL, DELAY, KEYWORDS, USERNAME, WEBHOOK_URL
+from config import DELAY, KEYWORDS, WEBHOOK_URL
 from discord import Embed, Webhook
 
 from globalConfig import (
@@ -38,7 +38,7 @@ logging.basicConfig(
 INSTOCK = []
 
 
-async def send_to_discord(product, webhook):
+async def send_product(product, webhook):
     """
     Sends a Discord webhook notification to the specified webhook URL
     """
@@ -61,7 +61,7 @@ async def send_to_discord(product, webhook):
         }
     )
 
-    await webhook.send(embed=embed, username=USERNAME, avatar_url=AVATAR_URL)
+    await webhook.send(embed=embed)
 
     msg = product["title"] + " successfully sent."
     print(msg)
@@ -168,7 +168,7 @@ async def monitor():
                 new_products = fetch_new_products(products, start)
 
                 for product in new_products:
-                    await send_to_discord(product, webhook)
+                    await send_product(product, webhook)
 
             except requests.exceptions.RequestException as e:
                 logging.error(e)

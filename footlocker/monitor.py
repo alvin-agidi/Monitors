@@ -10,13 +10,7 @@ import aiohttp
 import urllib3
 
 import requests
-from config import (
-    AVATAR_URL,
-    DELAY,
-    KEYWORDS,
-    USERNAME,
-    WEBHOOK_URL,
-)
+from config import DELAY, KEYWORDS, WEBHOOK_URL
 
 from globalConfig import (
     CURRENCY_SYMBOLS,
@@ -51,7 +45,7 @@ logging.basicConfig(
 INSTOCK = []
 
 
-async def send_to_discord(product, webhook):
+async def send_product(product, webhook):
     """
     Sends a Discord webhook notification to the specified webhook URL
     """
@@ -109,7 +103,7 @@ async def monitor():
                 )
 
                 for product in new_products:
-                    await send_to_discord(product, webhook)
+                    await send_product(product, webhook)
 
             except requests.exceptions.RequestException as e:
                 logging.error(e)

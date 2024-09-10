@@ -1,8 +1,11 @@
 from fp.fp import FreeProxy
 from random_user_agent.params import HardwareType, SoftwareName
 from random_user_agent.user_agent import UserAgent
+from datetime import datetime, timezone
+from discord import Embed
 
 SNEAK_CRED_GREEN = 0x26B062
+ERROR_RED = 0xB50000
 
 LOCATION = "GB"
 LANGUAGE = "en-GB"
@@ -116,3 +119,21 @@ def rotate_proxies(proxy_obj, proxy_no):
         proxies = {"http": PROXY[proxy_no], "https": PROXY[proxy_no]}
 
     return proxies, proxy_no
+
+
+async def send_msg(title, desc, webhook, **kwargs):
+    """
+    Sends a Discord webhook notification to the specified webhook URL
+    """
+    print(kwargs)
+    embed = Embed.from_dict(
+        {
+            "title": title,
+            "description": desc,
+            "color": kwargs["COLOUR"],
+            "footer": {"text": "Sneak Cred"},
+            "timestamp": str(datetime.now(timezone.utc)),
+        }
+    )
+
+    await webhook.send(embed=embed)
